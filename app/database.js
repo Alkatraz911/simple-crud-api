@@ -1,7 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const { validate: uuidValidate } = require('uuid');
 const Err = require('./errors.js');
+
 module.exports = class Database {
+
     constructor() {
         this.persons = [];
     }
