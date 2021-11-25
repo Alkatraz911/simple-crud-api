@@ -6,19 +6,22 @@ const Database = require('./database.js');
 const data = new Database();
 
 
+try{http.createServer((req, res) => {
 
-http.createServer((req, res) => {
     const navArr = req.url.split('/');
     const id = navArr[navArr.indexOf('person') + 1];
     
-
        if(req.method === 'GET') {
 
             if (id) {
-                const result = data.getPerson(id);
-                res.writeHead(200, { 'Content_Type': 'application/json' });
-                res.end(JSON.stringify(result));
-
+                try {
+                    const result = data.getPerson(id);
+                    res.writeHead(200, { 'Content_Type': 'application/json' });
+                    res.end(JSON.stringify(result));
+                } catch (e) {
+                    res.writeHead(e.code, { 'Content_Type': 'text/plain' });
+                    res.end(e.message);
+                }
             } else {
                 res.writeHead(200, { 'Content_Type': 'application/json' });
                 res.end(JSON.stringify(data.persons));
@@ -26,22 +29,26 @@ http.createServer((req, res) => {
         }
 
         else if(req.method ===  'POST') {
+          
             let body = '';
-
             req.on('data', (chunk) => {
                 body += chunk;
             });
-
-            req.on('end', () => {
+            req.on('end', async () => {
                 if (body) {
                     try {
                         req.body = JSON.parse(body);
-                        data.addPerson(req.body);
-                        res.writeHead(201, { 'Content_Type': 'application/json' });
-                        res.end('added')
+                        const result = JSON.stringify(await data.addPerson(req.body));
+                        res.writeHead(201, { 'Content_Type': 'application/json'});
+                        res.end(result);
                     } catch (e) {
-                        res.writeHead(400, { 'Content_Type': 'text/plain' });
-                        res.end(e.message);
+                        if(e.isCustom){
+                            res.writeHead(e.code, { 'Content_Type': 'text/plain' });
+                            res.end(e.message);
+                        } else {
+                            throw e;
+                        }
+
                     }
 
                 }
@@ -50,17 +57,41 @@ http.createServer((req, res) => {
 
 
         else if (req.method === 'PUT') {
+            let body = '';
+            req.on('data', (chunk) => {
+                body += chunk;
+            });
+            req.on('end', async () => {
+                if (body) {
+                    try {
+                        req.body = JSON.parse(body);
+                        const result = JSON.stringify(await data.updatePerson(id,req.body));
+                        res.writeHead(200, { 'Content_Type': 'application/json'});
+                        res.end(result);
+                    } catch (e) {
+                        if(e.isCustom){
+                            res.writeHead(e.code, { 'Content_Type': 'text/plain' });
+                            res.end(e.message);
+                        } else {
+                            throw e;
+                        }
 
+                    }
+
+                }
+            })
         }
 
-        else if(req.method === 'DELETE') {
-                const navArr = req.url.split('/');
-                const id = navArr[navArr.indexOf('person') + 1];
-                if (id) {
-                    data.deletePerson(id);
-                    res.writeHead(204, { 'Content_Type': 'application/json' });
-                    res.end('User deleted');
-                }
+        else if (req.method === 'DELETE') {
+            try {
+                data.deletePerson(id);
+                res.writeHead(204, { 'Content_Type': 'text/plain'});
+                res.end();
+            } catch (e) {
+                res.writeHead(e.code, { 'Content_Type': 'text/plain' });
+                res.end(e.message);
+            }
+
         }
 
         
@@ -70,3 +101,6 @@ http.createServer((req, res) => {
 }).listen(PORT), () => {
     console.log('Server started!');
 };
+} catch (err) {
+    errorHandler(err)
+}
