@@ -1,0 +1,35 @@
+{
+  "name": "simple-crud-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start:dev": "nodemon ./app/index.js",
+    "start:prod": "webpack --mode production && node ./dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alkatraz911/simple-crud-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alkatraz911/simple-crud-api/issues"
+  },
+  "homepage": "https://github.com/Alkatraz911/simple-crud-api#readme",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "babel-loader": "^8.2.3",
+    "clean-webpack-plugin": "^4.0.0",
+    "cross-env": "^7.0.3",
+    "dotenv-webpack": "^7.0.3",
+    "nodemon": "^2.0.15",
+    "webpack": "^5.64.2",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "dotenv": "^10.0.0",
+    "uuid": "^8.3.2"
+  }
+}
